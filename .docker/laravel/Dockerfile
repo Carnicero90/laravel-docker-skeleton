@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-alpine as laravel
+FROM php:8.2-fpm-alpine as laravel
 
 ARG USER
 ARG GROUP
