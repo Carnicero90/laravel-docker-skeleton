@@ -1,0 +1,89 @@
+services:
+  nginx:
+    image: nginx:stable-alpine
+    environment:
+      USER: ${USER}
+      GROUP: ${GROUP}
+    ports:
+      - 80:80
+    volumes:
+      - ./${SRC_FOLDER}:/var/www/laravel
+      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - laravel
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./.docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD
+      interval: 5s
+      retries: 10
+
+  laravel:
+    build:
+      context: ./.docker/laravel
+      target: laravel
+      args:
+        USER: ${USER}
+        GROUP: ${GROUP}
+    environment:
+      PHP_INI_SCAN_DIR: "/usr/local/etc/php/custom.d:/usr/local/etc/php/conf.d"
+    volumes:
+      - ./${SRC_FOLDER}:/var/www/laravel
+      - ./.docker/laravel/php-ini:/usr/local/etc/php/custom.d
+
+  worker:
+    user: "${USER}:${GROUP}"
+    build: 
+      context: ./.docker/laravel
+      target: worker
+      args:
+        USER: ${USER}
+        GROUP: ${GROUP}
+    working_dir: /var/www/laravel
+    environment:
+      PHP_INI_SCAN_DIR: "/usr/local/etc/php/custom.d:/usr/local/etc/php/conf.d"
+    volumes:
+      - ./${SRC_FOLDER}:/var/www/laravel
+      - ./.docker/laravel/php-ini:/usr/local/etc/php/custom.d
+    depends_on:
+      - laravel
+      - redis
+
+  redis:
+    image: redis:alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+
+  npm:
+    image: node:current-alpine
+    working_dir: /var/www/laravel
+    ports:
+      - 5173:5173
+      - 3000:3000
+    environment:
+      USER: ${USER}
+      GROUP: ${GROUP}
+    volumes:
+      - ./src:/var/www/laravel
+    tty: true
+    # entrypoint: [ "npm" ]
+
+volumes:
+  mysqldata:
+  redisdata:
+
+
+
