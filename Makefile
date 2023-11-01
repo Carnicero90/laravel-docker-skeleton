@@ -8,6 +8,7 @@ build: ## Build all docker images.
 
 ##@ [Application]
 new: ## Create a new laravel application
+	mkdir src
 	docker compose run --rm laravel composer create-project --prefer-dist laravel/laravel .
 	sed -i 's/DB_USERNAME=root/DB_USERNAME=${MYSQL_USER}/g' src/.env
 	sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=${MYSQL_PASSWORD}/g' src/.env

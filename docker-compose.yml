@@ -43,47 +43,47 @@ services:
       - ./${SRC_FOLDER}:/var/www/laravel
       - ./.docker/laravel/php-ini:/usr/local/etc/php/custom.d
 
-  worker:
-    user: "${USER}:${GROUP}"
-    build: 
-      context: ./.docker/laravel
-      target: worker
-      args:
-        USER: ${USER}
-        GROUP: ${GROUP}
-    working_dir: /var/www/laravel
-    environment:
-      PHP_INI_SCAN_DIR: "/usr/local/etc/php/custom.d:/usr/local/etc/php/conf.d"
-    volumes:
-      - ./${SRC_FOLDER}:/var/www/laravel
-      - ./.docker/laravel/php-ini:/usr/local/etc/php/custom.d
-    depends_on:
-      - laravel
-      - redis
+  # worker:
+  #   user: "${USER}:${GROUP}"
+  #   build: 
+  #     context: ./.docker/laravel
+  #     target: worker
+  #     args:
+  #       USER: ${USER}
+  #       GROUP: ${GROUP}
+  #   working_dir: /var/www/laravel
+  #   environment:
+  #     PHP_INI_SCAN_DIR: "/usr/local/etc/php/custom.d:/usr/local/etc/php/conf.d"
+  #   volumes:
+  #     - ./${SRC_FOLDER}:/var/www/laravel
+  #     - ./.docker/laravel/php-ini:/usr/local/etc/php/custom.d
+  #   depends_on:
+  #     - laravel
+  #     - redis
 
-  redis:
-    image: redis:alpine
-    command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redisdata:/data
+  # redis:
+  #   image: redis:alpine
+  #   command: ["redis-server", "--appendonly", "yes"]
+  #   volumes:
+  #     - redisdata:/data
 
-  npm:
-    image: node:current-alpine
-    working_dir: /var/www/laravel
-    ports:
-      - 5173:5173
-      - 3000:3000
-    environment:
-      USER: ${USER}
-      GROUP: ${GROUP}
-    volumes:
-      - ./src:/var/www/laravel
-    tty: true
+  # npm:
+  #   image: node:current-alpine
+  #   working_dir: /var/www/laravel
+  #   ports:
+  #     - 5173:5173
+  #     - 3000:3000
+  #   environment:
+  #     USER: ${USER}
+  #     GROUP: ${GROUP}
+  #   volumes:
+  #     - ./src:/var/www/laravel
+  #   tty: true
     # entrypoint: [ "npm" ]
 
 volumes:
   mysqldata:
-  redisdata:
+  # redisdata:
 
 
 
